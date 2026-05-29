@@ -1,0 +1,48 @@
+name: Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+  issue_comment:
+    types: [created]
+
+jobs:
+  review:
+    if: |
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request &&
+       (contains(github.event.comment.body, '@review-my-code-bot') ||
+        contains(github.event.comment.body, '@rmc-bot')))
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Checkout PR head for comment events
+        if: github.event_name == 'issue_comment'
+        run: gh pr checkout ${{ github.event.issue.number }}
+        env:
+          GH_TOKEN: ${{ secrets.GTHB_PAT }}
+
+      - name: Reivew My Code, OpenCode!
+        uses: tomsjansons/rmc-oc@latest
+        with:
+          openrouter_api_key: ${{ secrets.OPENROUTER_API_KEY }}
+          GTHB_PAT: ${{ secrets.GTHB_PAT }}
+          model: 'deepseek/deepseek-v4-flash'            # 사용할 LLM 모델
+#         model: '~anthropic/claude-sonnet-latest'       # 사용할 LLM 모델
+          problem_score_threshold: '7'                   # 7점 이상 이슈만 리포트 (1~10)
+          blocking_score_threshold: '9'                  # 9점 이상이면 CI 실패
+          review_timeout_minutes: '40'                   # 5~120분
+          max_review_retries: '1'                        # 타임아웃 시 재시도 횟수 (0~3)
+          enable_web: 'true'                             # 봇이 웹 검색으로 문서 조회 허용
+#         enable_human_escalation: 'true'                # 분쟁 미해결시 사람에게 에스컬레이션
+#         human_reviewers: 'alice,bob'                   # 에스컬레이션 받을 GitHub 사용자명
+          debug_logging: 'false'                         # 상세 LLM 로그
