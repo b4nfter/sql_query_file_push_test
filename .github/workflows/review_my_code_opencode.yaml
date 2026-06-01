@@ -35,9 +35,9 @@ jobs:
         uses: tomsjansons/rmc-oc@latest
         with:
           openrouter_api_key: ${{ secrets.OPENROUTER_API_KEY }}
-          GTHB_PAT: ${{ secrets.GTHB_PAT }}
+          github_token: ${{ secrets.GTHB_PAT }}
           model: 'deepseek/deepseek-v4-flash'            # 사용할 LLM 모델
-#         model: '~anthropic/claude-sonnet-latest'       # 사용할 LLM 모델
+#         model: 'anthropic/claude-sonnet-4.6'           # 사용할 LLM 모델
           problem_score_threshold: '7'                   # 7점 이상 이슈만 리포트 (1~10)
           blocking_score_threshold: '9'                  # 9점 이상이면 CI 실패
           review_timeout_minutes: '40'                   # 5~120분
