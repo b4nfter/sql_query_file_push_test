@@ -35,21 +35,3 @@ CREATE TABLE `tbl_post` (
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB;
 
-
-DROP PROCEDURE IF EXISTS sp_select_post_by_id;
-DELIMITER ;;
-CREATE PROCEDURE `sp_select_post_by_id`(
-    IN pi_id BIGINT
-)
-BEGIN
-    IF pi_id IS NULL THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'pi_id는 NULL일 수 없습니다.';
-    END IF;
-
-    SELECT id, title, content
-        FROM tbl_post
-        WHERE id = pi_id;
-END ;;
-DELIMITER ;
-
